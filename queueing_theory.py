@@ -2,8 +2,8 @@ from math import log
 from random import random
 
 customers = int(input("\n\n¿Para cuántos clientes se realizará la simulación? "))
-values_x = list(map(lambda r: -3 * log(r), list(random() for i in range(customers))))
-values_y = list(map(lambda r: 2 * r + 3, list(random() for i in range(customers))))
+values_x = list(map(lambda r: -3 * log(r), [random() for i in range(customers)]))
+values_y = list(map(lambda r: 2 * r + 3, [random() for i in range(customers)]))
 total_waiting_time = 0.0
 total_system_time = 0.0
 arrival_time = 0.0
