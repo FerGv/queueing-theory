@@ -4,7 +4,7 @@ from random import random
 def queueing_theory(*functions, **kwargs):
     """ 
         Queueing Theory Parameters:
-        *functions [('name_function', values)] -> arrival_time_function, n-servers-functions
+        *functions ('name_function', values) -> arrival_time_function, n-servers-functions
             - Poisson => ('p', mean_value)
             - Exponential => ('e', mean_value)
             - Uniform => ('u', mean_value, variation)
@@ -17,12 +17,12 @@ def queueing_theory(*functions, **kwargs):
     arrival_time = 0.0
     departure_time_list = []
     simulations = kwargs['simulations']
-    total_functions = len(functions[1:])
+    servers_functions = len(functions[1:])
     counter = 0
     values = []
 
     for function in functions:
-        if function[0] == 'p':
+        if function[0] == 'p' or function[0] == 'e':
             value = tuple(map(lambda r: -function[1] * log(r), [random() for i in range(simulations)]))
         else:
             min_value = function[1] - function[2]
@@ -36,14 +36,14 @@ def queueing_theory(*functions, **kwargs):
         arrival_time += values[0][simulation]
         initial_time = arrival_time
 
-        for function in range(total_functions):
+        for function in range(servers_functions):
             counter += 1
             if counter == 1:
                 pass
             else:
-                if initial_time < departure_time_list[counter - (total_functions+1)]:
-                    waiting_time += departure_time_list[counter - (total_functions+1)] - initial_time
-                    initial_time = departure_time_list[counter - (total_functions+1)]
+                if initial_time < departure_time_list[counter - (servers_functions+1)]:
+                    waiting_time += departure_time_list[counter - (servers_functions+1)] - initial_time
+                    initial_time = departure_time_list[counter - (servers_functions+1)]
 
             departure_time = initial_time + values[function+1][simulation]
             initial_time = departure_time
