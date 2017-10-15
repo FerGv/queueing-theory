@@ -1,34 +1,85 @@
 from math import log
 from random import random
 
-customers = int(input("\n\n¿Para cuántos clientes se realizará la simulación? "))
-values_x = list(map(lambda r: -3 * log(r), [random() for i in range(customers)]))
-values_y = list(map(lambda r: 2 * r + 3, [random() for i in range(customers)]))
-total_waiting_time = 0.0
-total_system_time = 0.0
-arrival_time = 0.0
-initial_time_service = 0.0
-departure_time = 0.0
+def queueing_theory(*functions, **kwargs):
+    """ 
+        Queueing Theory Parameters:
+        *functions [('name_function', values)] -> arrival_time_function, n-servers-functions
+            - Poisson => ('p', mean_value)
+            - Exponential => ('e', mean_value)
+            - Uniform => ('u', mean_value, variation)
+        **kwargs -> simulation = number_of_simulations
 
-print("\n\nCliente | T LLegada | H Llegada | T Inicio | T Servicio | T Salida | T Espera | T Sistema")
-print("-" * 90)
+        Function returns mean waiting time and mean system time.
+    """
+    total_waiting_time = 0.0
+    total_system_time = 0.0
+    arrival_time = 0.0
+    departure_time_list = []
+    simulations = kwargs['simulations']
+    total_functions = len(functions[1:])
+    counter = 0
+    values = []
 
-for i in range(customers):
-    waiting_time = 0.0
-    arrival_time += values_x[i]
+    for function in functions:
+        if function[0] == 'p':
+            value = tuple(map(lambda r: -function[1] * log(r), [random() for i in range(simulations)]))
+        else:
+            min_value = function[1] - function[2]
+            max_value = function[1] + function[2]
+            value = tuple(map(lambda r: (max_value - min_value) * r + min_value, [random() for i in range(simulations)]))
+        
+        values.append(value)
 
-    if arrival_time < departure_time:
-        waiting_time = departure_time - arrival_time
+    for simulation in range(simulations):
+        waiting_time = 0.0
+        arrival_time += values[0][simulation]
+        initial_time = arrival_time
+
+        for function in range(total_functions):
+            counter += 1
+            if counter == 1:
+                pass
+            else:
+                if initial_time < departure_time_list[counter - (total_functions+1)]:
+                    waiting_time += departure_time_list[counter - (total_functions+1)] - initial_time
+                    initial_time = departure_time_list[counter - (total_functions+1)]
+
+            departure_time = initial_time + values[function+1][simulation]
+            initial_time = departure_time
+            departure_time_list.append(departure_time)
+
         total_waiting_time += waiting_time
-        initial_time_service = departure_time
-    else:
-        initial_time_service += values_x[i]
+        system_time = departure_time - arrival_time
+        total_system_time += system_time
 
-    departure_time = initial_time_service + values_y[i]
-    system_time = departure_time - arrival_time
-    total_system_time += system_time
+    mean_waiting_time = total_waiting_time / simulations
+    mean_system_time = total_system_time / simulations
+    return (mean_waiting_time, mean_system_time)
 
-    print("{:^8}| {:^10.2f}| {:^10.2f}|{:^10.2f}|{:^12.2f}|{:^10.2f}|{:^10.2f}|{:^10.2f}".format(i+1, values_x[i], arrival_time, initial_time_service, values_y[i], departure_time, waiting_time, system_time))
+def main():
+    """ Example """
+    functions = []
+    while True:
+        print("\n\nEscoge una distribución \n1. Poisson \n2. Exponencial \n3. Uniforme \n4. Salir ")
+        option = int(input("\n\tOpción: "))
+        if option == 1 or option == 2:
+            mean_service = float(input("\t¿Cuál es la media? "))
+            functions.append(('p', mean_service)) if option == 1 else functions.append(('e', mean_service))
+        elif option == 3:
+            mean_service = float(input("\t¿Cuál es la media? "))
+            variation_service = float(input("\t¿Cuál es la variación? "))
+            functions.append(('u', mean_service, variation_service))
+        else:
+            break
 
-print("\n\nTiempo medio de Espera: {total_waiting_time:.2f}".format(total_waiting_time=total_waiting_time/customers))
-print("Tiempo medio en el Sistema: {total_system_time:.2f} \n\n".format(total_system_time=total_system_time/customers))
+    simulations = int(input("\t¿Cuántas simulaciones se realizarán? "))
+
+    wt, st = queueing_theory(*functions, simulations=simulations)
+
+    print("\n\nTiempo medio de Espera: {mean_waiting_time:.2f}".format(mean_waiting_time=wt))
+    print("Tiempo medio en el Sistema: {mean_system_time:.2f} \n\n".format(mean_system_time=st))
+
+
+if __name__ == '__main__':
+    main()
