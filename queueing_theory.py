@@ -4,13 +4,15 @@ from random import random
 def queueing_theory(*functions, **kwargs):
     """ 
         Queueing Theory Parameters:
-        *functions ('name_function', values) -> arrival_time_function, n-servers-functions
+        *functions ('name_function', values)
             - Poisson => ('p', mean_value)
             - Exponential => ('e', mean_value)
             - Uniform => ('u', mean_value, variation)
         **kwargs -> simulation = number_of_simulations
 
         Function returns mean waiting time and mean system time.
+
+        Note: Functions order -> arrival_time_function, n-servers-functions
     """
     total_waiting_time = 0.0
     total_system_time = 0.0
@@ -55,7 +57,9 @@ def queueing_theory(*functions, **kwargs):
 
     mean_waiting_time = total_waiting_time / simulations
     mean_system_time = total_system_time / simulations
-    return (mean_waiting_time, mean_system_time)
+
+    return mean_waiting_time, mean_system_time
+
 
 def main():
     """ Example """
