@@ -29,7 +29,7 @@ def queueing_theory(*functions, **kwargs):
         else:
             min_value = function[1] - function[2]
             max_value = function[1] + function[2]
-            value = tuple(map(lambda r: (max_value - min_value) * r + min_value, [random() for i in range(simulations)]))
+            value = tuple(map(lambda r: (max_value - min_value)*r + min_value, [random() for i in range(simulations)]))
         
         values.append(value)
 
